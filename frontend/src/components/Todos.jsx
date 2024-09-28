@@ -1,44 +1,48 @@
-import React from "react";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 
-const Todos = ({ todos, setTodos }) => {
-  const handleComplete = async (id) => {
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/completed`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ id }),
-      });
+function Todos() {
+  const [todos, setTodos] = useState([]);
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+  useEffect(() => {
+    const fetchTodos = async () => {
+      try {
+        const res = await axios.get('http://localhost:3000/todos');
+        setTodos(res.data.todos);
+      } catch (error) {
+        console.error('Error fetching todos:', error);
+        alert('Failed to fetch todos');
       }
+    };
 
-      setTodos((prevTodos) =>
-        prevTodos.map((todo) =>
-          todo._id === id ? { ...todo, completed: true } : todo
-        )
-      );
+    fetchTodos();
+  }, []);
+
+  const handleCompleteTodo = async (id) => {
+    try {
+      await axios.put(`http://localhost:3000/completed`, { id });
+      setTodos(todos.map(todo => (todo._id === id ? { ...todo, completed: true } : todo)));
     } catch (error) {
       console.error('Error completing todo:', error);
+      alert('Failed to complete todo');
     }
   };
 
   return (
     <div>
-      <h1>Todos</h1>
-      {todos.map((todo) => (
-        <div key={todo._id}>
-          <h2>{todo.title}</h2>
-          <h3>{todo.description}</h3>
-          <button onClick={() => handleComplete(todo._id)}>
-            {todo.completed ? "Completed" : "Mark as Complete"}
-          </button>
-        </div>
-      ))}
+      <h2>Your Todos</h2>
+      <ul>
+        {todos.map(todo => (
+          <li key={todo._id}>
+            <span style={{ textDecoration: todo.completed ? 'line-through' : 'none' }}>
+              {todo.title}: {todo.description}
+            </span>
+            {!todo.completed && <button onClick={() => handleCompleteTodo(todo._id)}>Mark Complete</button>}
+          </li>
+        ))}
+      </ul>
     </div>
   );
-};
+}
 
 export default Todos;

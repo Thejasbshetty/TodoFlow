@@ -1,32 +1,54 @@
-import React, { useEffect, useState } from "react";
-import CreateTodos from "./components/CreateTodos";
-import Todos from "./components/Todos";
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import CreateTodos from './components/CreateTodos';
+import Todos from './components/Todos';
+import Signup from './pages/Signup';
+import Login from './pages/Login';
+import axios from 'axios';
 
 function App() {
-  const [todos, setTodos] = useState([]);
+  const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
-    const fetchTodos = async () => {
-      try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/todos`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        setTodos(data.todos);
-      } catch (error) {
-        console.error('Error fetching todos:', error);
-      }
-    };
-
-    fetchTodos();
+    const token = localStorage.getItem('token');
+    if (token) {
+      setLoggedIn(true);
+    }
   }, []);
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setLoggedIn(false);
+  };
+
   return (
-    <div>
-      <CreateTodos setTodos={setTodos} />
-      <Todos todos={todos} setTodos={setTodos} />
-    </div>
+    <Router>
+      <div>
+        <nav>
+          {loggedIn ? (
+            <button onClick={handleLogout}>Logout</button>
+          ) : (
+            <div>
+              <a href="/signup">Signup</a>
+              <a href="/login">Login</a>
+            </div>
+          )}
+        </nav>
+
+        <Routes>
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/login" element={<Login setLoggedIn={setLoggedIn} />} />
+          <Route
+            path="/todos"
+            element={loggedIn ? <Todos /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/create-todo"
+            element={loggedIn ? <CreateTodos /> : <Navigate to="/login" />}
+          />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 

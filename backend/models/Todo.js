@@ -1,16 +1,12 @@
-// database/index.js
 const mongoose = require("mongoose");
 
-// Define the Todo schema
 const todoSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: { type: String },
   completed: { type: Boolean, default: false },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // Reference to the User model
 });
 
-// Create the Todo model
 const Todo = mongoose.model("Todo", todoSchema);
 
-module.exports = {
-  todo: Todo,
-};
+module.exports = Todo;
