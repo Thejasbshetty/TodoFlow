@@ -1,35 +1,48 @@
+// server.js
 const express = require("express");
-const { createTodo, updateTodo } = require("./types");
-const app = express();
+const { createTodo, updateTodo } = require("./validation/todoSchemas");
+const cors = require("cors");
+const mongoose = require("mongoose");
 const Todo = require("./database").todo;
+require("dotenv").config();
 
+const app = express();
 app.use(express.json());
+app.use(cors());
 
-app.post('/todo', async function(req, res) {
+// MongoDB Connection
+mongoose
+  .connect(process.env.MONGODB_URL)
+  .then(() => console.log("MongoDB connected"))
+  .catch((err) => console.error("MongoDB connection error:", err));
+
+// Create Todo
+app.post('/todo', async (req, res) => {
   const createPayload = req.body;
-
   const parsedPayload = createTodo.safeParse(createPayload);
+
   if (!parsedPayload.success) {
-    res.status(400).json({ error: "Invalid input", details: parsedPayload.error.errors });
-    return;
+    return res.status(400).json({ error: "Invalid input", details: parsedPayload.error.errors });
   }
 
   try {
-    await Todo.create({
+    const newTodo = await Todo.create({
       title: createPayload.title,
       description: createPayload.description,
       completed: false
     });
 
     res.status(201).json({
-      msg: "Todo created successfully"
+      msg: "Todo created successfully",
+      todo: newTodo
     });
   } catch (error) {
     res.status(500).json({ error: "Database error", details: error.message });
   }
 });
 
-app.get("/todos", async function(req, res) {
+// Get Todos
+app.get("/todos", async (req, res) => {
   try {
     const todos = await Todo.find({});
     res.json({ todos });
@@ -38,14 +51,13 @@ app.get("/todos", async function(req, res) {
   }
 });
 
-app.put("/completed", async function(req, res) {
+// Update Todo as Completed
+app.put("/completed", async (req, res) => {
   const updatePayload = req.body;
-
-
   const parsedPayload = updateTodo.safeParse(updatePayload);
+
   if (!parsedPayload.success) {
-    res.status(400).json({ error: "Invalid input", details: parsedPayload.error.errors });
-    return;
+    return res.status(400).json({ error: "Invalid input", details: parsedPayload.error.errors });
   }
 
   try {
@@ -61,6 +73,8 @@ app.put("/completed", async function(req, res) {
   }
 });
 
-app.listen(3000, () => {
-  console.log("Server is running on port 3000");
+// Start Server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });

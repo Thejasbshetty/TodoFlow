@@ -1,17 +1,14 @@
-require("dotenv").config();
+// database/index.js
 const mongoose = require("mongoose");
 
-mongoose
-  .connect(process.env.MONGODB_URL)
-  .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.error("MongoDB connection error:", err));
-
+// Define the Todo schema
 const todoSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: { type: String },
   completed: { type: Boolean, default: false },
 });
 
+// Create the Todo model
 const Todo = mongoose.model("Todo", todoSchema);
 
 module.exports = {
