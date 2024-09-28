@@ -33,4 +33,15 @@ router.post('/login', async (req, res) => {
   res.json({ token });
 });
 
+// Get user details
+router.get('/user', async (req, res) => {
+    try {
+      const user = await User.findById(req.userId).select('-password'); // Exclude password
+      res.json(user);
+    } catch (error) {
+      res.status(400).json({ message: 'Error fetching user details', error });
+    }
+  });
+  
+
 module.exports = router;
