@@ -1,29 +1,34 @@
-import React, { createContext, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import axios from 'axios';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [auth, setAuth] = useState(localStorage.getItem('token') || null);
-  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
 
-  const login = (token) => {
-    localStorage.setItem('token', token);
-    setAuth(token);
-    navigate('/');
-  };
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await axios.get('http://localhost:3000/api/auth/user', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setUser(res.data);
+      } catch (error) {
+        console.error('Error fetching user details:', error);
+      }
+    };
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    setAuth(null);
-    navigate('/login');
-  };
+    fetchUserDetails();
+  }, []);
 
   return (
-    <AuthContext.Provider value={{ auth, login, logout }}>
+    <AuthContext.Provider value={{ user }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export default AuthContext;
+export const useAuth = () => {
+  return useContext(AuthContext);
+};

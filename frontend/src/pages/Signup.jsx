@@ -22,7 +22,7 @@ function Signup() {
     try {
       await axios.post('http://localhost:3000/api/auth/signup', formData);
       alert('Signup successful!');
-      navigate('/login');
+      navigate('/');
     } catch (error) {
       console.error('Error signing up:', error);
       alert('Signup failed!');

@@ -7,6 +7,7 @@ function Todos() {
   const [todos, setTodos] = useState([]);
   const [showCreateTodo, setShowCreateTodo] = useState(false);
   const [user, setUser] = useState(null);
+  const [showDropdown, setShowDropdown] = useState(false); // State for dropdown
   const navigate = useNavigate();
 
   const fetchTodos = async () => {
@@ -35,6 +36,7 @@ function Todos() {
       setUser(res.data);
     } catch (error) {
       console.error('Error fetching user details:', error);
+      setUser(null); // Reset user on error
     }
   };
 
@@ -78,32 +80,39 @@ function Todos() {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
-    navigate('/login');
+    navigate('/');
   };
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-800">Your Todos</h2>
-        {user && (
+        {user ? (
           <div className="relative">
-            <button className="flex items-center text-gray-700 hover:text-blue-500">
+            <button
+              className="flex items-center text-gray-700 hover:text-blue-500"
+              onClick={() => setShowDropdown(!showDropdown)} // Toggle dropdown
+            >
               <i className="fas fa-user-circle text-3xl"></i>
               <span className="ml-2">{user.username}</span>
             </button>
-            <div className="absolute right-0 w-40 bg-white shadow-lg mt-2 rounded-md z-10">
-              <div className="px-4 py-2 border-b">
-                <h4 className="font-bold">{user.username}</h4>
-                <p className="text-gray-600">{user.email}</p>
+            {showDropdown && (
+              <div className="absolute right-0 w-40 bg-white shadow-lg mt-2 rounded-md z-10">
+                <div className="px-4 py-2 border-b">
+                  <h4 className="font-bold">{user.username}</h4>
+                  <p className="text-gray-600">{user.email}</p>
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="block text-left w-full px-4 py-2 text-gray-700 hover:bg-gray-200"
+                >
+                  Logout
+                </button>
               </div>
-              <button
-                onClick={handleLogout}
-                className="block text-left w-full px-4 py-2 text-gray-700 hover:bg-gray-200"
-              >
-                Logout
-              </button>
-            </div>
+            )}
           </div>
+        ) : (
+          <p className="text-gray-600">User details not found.</p> // Message if user is not fetched
         )}
       </div>
 
