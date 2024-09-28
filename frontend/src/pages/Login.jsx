@@ -7,8 +7,7 @@ function Login() {
     email: '',
     password: ''
   });
-
-  const navigate = useNavigate(); // Use the useNavigate hook for navigation
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({
@@ -22,7 +21,8 @@ function Login() {
     try {
       const res = await axios.post('http://localhost:3000/api/auth/login', formData);
       alert('Login successful!');
-      navigate('/todos'); // Redirect to the todos page after successful login
+      localStorage.setItem('token', res.data.token);
+      navigate('/todos');
     } catch (error) {
       console.error('Error logging in:', error);
       alert('Login failed!');
@@ -38,12 +38,14 @@ function Login() {
           name="email"
           placeholder="Email"
           onChange={handleChange}
+          required
         />
         <input
           type="password"
           name="password"
           placeholder="Password"
           onChange={handleChange}
+          required
         />
         <button type="submit">Login</button>
       </form>

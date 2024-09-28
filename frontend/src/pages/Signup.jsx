@@ -8,8 +8,7 @@ function Signup() {
     email: '',
     password: ''
   });
-
-  const navigate = useNavigate(); // Use the useNavigate hook for navigation
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({
@@ -21,9 +20,9 @@ function Signup() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post('http://localhost:3000/api/auth/signup', formData);
+      await axios.post('http://localhost:3000/api/auth/signup', formData);
       alert('Signup successful!');
-      navigate('/todos'); // Redirect to the todos page after successful signup
+      navigate('/login');
     } catch (error) {
       console.error('Error signing up:', error);
       alert('Signup failed!');
@@ -39,18 +38,21 @@ function Signup() {
           name="username"
           placeholder="Username"
           onChange={handleChange}
+          required
         />
         <input
           type="email"
           name="email"
           placeholder="Email"
           onChange={handleChange}
+          required
         />
         <input
           type="password"
           name="password"
           placeholder="Password"
           onChange={handleChange}
+          required
         />
         <button type="submit">Signup</button>
       </form>
