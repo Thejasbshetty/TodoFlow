@@ -15,7 +15,7 @@ const UserProfileDropdown = ({ user, handleLogout }) => {
             onClick={() => setShowDropdown(!showDropdown)}
           >
             <img
-              src={user.avatar || 'https://via.placeholder.com/40'}
+              src={user.avatar || 'https://static-00.iconduck.com/assets.00/user-icon-227x256-cyrb9pi5.png'}
               alt="User Avatar"
               className="w-10 h-10 rounded-full border border-gray-300"
             />
