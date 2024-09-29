@@ -63,7 +63,7 @@ const Todos = () => {
   const fetchTodos = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('https://todo-backend-vglo.onrender.com/api/todos', {
+      const response = await axios.get('http://localhost:3000/api/todos', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -78,7 +78,7 @@ const Todos = () => {
   const fetchUserDetails = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('https://todo-backend-vglo.onrender.com/api/auth/user', {
+      const response = await axios.get('http://localhost:3000/api/auth/user', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -98,7 +98,7 @@ const Todos = () => {
   const handleDelete = async (id) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`https://todo-backend-vglo.onrender.com/api/todos/${id}`, {
+      await axios.delete(`http://localhost:3000/api/todos/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -121,7 +121,7 @@ const Todos = () => {
 
       // Send the update request to the server
       await axios.put(
-        `https://todo-backend-vglo.onrender.com/api/todos/${id}`,
+        `http://localhost:3000/api/todos/${id}`,
         { completed: !currentStatus },
         {
           headers: {

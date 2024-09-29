@@ -10,7 +10,7 @@ export const AuthProvider = ({ children }) => {
     const fetchUserDetails = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.get('https://todos-backend-vm9s.onrender.com/api/auth/user', {
+        const res = await axios.get('http://localhost:3000/api/auth/user', {
           headers: { Authorization: `Bearer ${token}` }
         });
         setUser(res.data);
