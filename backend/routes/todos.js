@@ -41,22 +41,30 @@ router.put('/:id', async (req, res) => {
   const { done } = req.body; // Get 'done' status from the request
 
   try {
+    // Find the todo by ID
     const todo = await Todo.findById(req.params.id);
     if (!todo) {
       return res.status(404).json({ message: 'Todo not found' });
     }
 
+    // Update the completed status and set the completion date if marked as done
     if (done) {
       todo.completed = true; // Set completed status
       todo.completionDate = new Date(); // Set completion date
+    } else {
+      todo.completed = false; // Optionally reset completion status
+      todo.completionDate = null; // Optionally reset completion date
     }
 
+    // Save the updated todo
     await todo.save();
-    res.status(200).json(todo);
+    return res.status(200).json(todo); // Respond with the updated todo
   } catch (error) {
-    res.status(400).json({ message: 'Error updating todo', error });
+    console.error('Error updating todo:', error);
+    return res.status(500).json({ message: 'Error updating todo', error: error.message }); // Return server error
   }
 });
+
 
 // Delete todo
 router.delete('/:id', async (req, res) => {

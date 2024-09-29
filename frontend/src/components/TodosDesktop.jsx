@@ -3,7 +3,6 @@ import axios from 'axios';
 import CreateTodos from './CreateTodos';
 import { useNavigate } from 'react-router-dom';
 
-// Updated UserProfileDropdown Component
 const UserProfileDropdown = ({ user, handleLogout }) => {
   const [showDropdown, setShowDropdown] = useState(false);
 
@@ -13,10 +12,10 @@ const UserProfileDropdown = ({ user, handleLogout }) => {
         <>
           <button
             className="flex items-center text-gray-700 hover:text-blue-500 focus:outline-none"
-            onClick={() => setShowDropdown(!showDropdown)} // Toggle dropdown
+            onClick={() => setShowDropdown(!showDropdown)}
           >
             <img
-              src={user.avatar || 'https://via.placeholder.com/40'} // Use user's avatar or a placeholder
+              src={user.avatar || 'https://via.placeholder.com/40'}
               alt="User Avatar"
               className="w-10 h-10 rounded-full border border-gray-300"
             />
@@ -37,7 +36,7 @@ const UserProfileDropdown = ({ user, handleLogout }) => {
           )}
         </>
       ) : (
-        <p className="text-gray-600">User details not found.</p> // Message if user is not fetched
+        <p className="text-gray-600">User details not found.</p>
       )}
     </div>
   );
@@ -58,6 +57,7 @@ function Todos() {
   const [todos, setTodos] = useState([]);
   const [showCreateTodo, setShowCreateTodo] = useState(false);
   const [user, setUser] = useState(null);
+  const [error, setError] = useState(null); // State for error messages
   const navigate = useNavigate();
 
   const fetchTodos = async () => {
@@ -71,6 +71,7 @@ function Todos() {
       setTodos(res.data);
     } catch (error) {
       console.error('Error fetching todos:', error);
+      setError('Failed to fetch todos.');
     }
   };
 
@@ -82,11 +83,11 @@ function Todos() {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log('User Details:', res.data); // Debug log
+      console.log('User Details:', res.data);
       setUser(res.data);
     } catch (error) {
       console.error('Error fetching user details:', error);
-      setUser(null); // Reset user on error
+      setUser(null);
     }
   };
 
@@ -106,20 +107,35 @@ function Todos() {
       fetchTodos();
     } catch (error) {
       console.error('Error deleting todo:', error);
+      setError('Failed to delete todo.');
     }
   };
 
   const handleMarkAsDone = async (id) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`https://todo-backend-vglo.onrender.com/api/todos/${id}`, { completed: true }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      fetchTodos();
+      // Optimistically update the UI
+      setTodos((prevTodos) =>
+        prevTodos.map((todo) =>
+          todo._id === id ? { ...todo, completed: true } : todo
+        )
+      );
+
+      await axios.put(
+        `https://todo-backend-vglo.onrender.com/api/todos/${id}`,
+        { completed: true },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // Optionally re-fetch todos to ensure the latest state
+      // fetchTodos();
     } catch (error) {
       console.error('Error marking todo as done:', error);
+      setError('Failed to mark todo as done.'); // Set error message on failure
     }
   };
 
@@ -141,6 +157,8 @@ function Todos() {
       </div>
 
       <TodoButton setShowCreateTodo={setShowCreateTodo} />
+
+      {error && <p className="text-red-500">{error}</p>} {/* Display error message */}
 
       {showCreateTodo ? (
         <CreateTodos fetchTodos={fetchTodos} onClose={handleCloseCreateTodo} />
@@ -189,5 +207,3 @@ function Todos() {
 }
 
 export default Todos;
-
-
