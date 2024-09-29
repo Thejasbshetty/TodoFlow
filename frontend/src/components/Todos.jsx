@@ -3,17 +3,67 @@ import axios from 'axios';
 import CreateTodos from './CreateTodos';
 import { useNavigate } from 'react-router-dom';
 
+// Updated UserProfileDropdown Component
+const UserProfileDropdown = ({ user, handleLogout }) => {
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  return (
+    <div className="relative">
+      {user ? (
+        <>
+          <button
+            className="flex items-center text-gray-700 hover:text-blue-500 focus:outline-none"
+            onClick={() => setShowDropdown(!showDropdown)} // Toggle dropdown
+          >
+            <img
+              src={user.avatar || 'https://via.placeholder.com/40'} // Use user's avatar or a placeholder
+              alt="User Avatar"
+              className="w-10 h-10 rounded-full border border-gray-300"
+            />
+          </button>
+          {showDropdown && (
+            <div className="absolute right-0 w-48 bg-white shadow-lg mt-2 rounded-md z-10">
+              <div className="px-4 py-3 border-b">
+                <h4 className="font-bold text-lg">{user.username}</h4>
+                <p className="text-gray-600 text-sm">{user.email}</p>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="block text-left w-full px-4 py-2 text-gray-700 hover:bg-gray-200 transition duration-200"
+              >
+                Logout
+              </button>
+            </div>
+          )}
+        </>
+      ) : (
+        <p className="text-gray-600">User details not found.</p> // Message if user is not fetched
+      )}
+    </div>
+  );
+};
+
+const TodoButton = ({ setShowCreateTodo }) => (
+  <div className="text-right mb-4">
+    <button
+      onClick={() => setShowCreateTodo(true)}
+      className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-200"
+    >
+      Add New Todo
+    </button>
+  </div>
+);
+
 function Todos() {
   const [todos, setTodos] = useState([]);
   const [showCreateTodo, setShowCreateTodo] = useState(false);
   const [user, setUser] = useState(null);
-  const [showDropdown, setShowDropdown] = useState(false); // State for dropdown
   const navigate = useNavigate();
 
   const fetchTodos = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get('http://localhost:3000/api/todos', {
+      const res = await axios.get('https://todo-backend-vglo.onrender.com/api/todos', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -27,7 +77,7 @@ function Todos() {
   const fetchUserDetails = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get('http://localhost:3000/api/auth/user', {
+      const res = await axios.get('https://todo-backend-vglo.onrender.com/api/auth/user', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -48,7 +98,7 @@ function Todos() {
   const handleDelete = async (id) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:3000/api/todos/${id}`, {
+      await axios.delete(`https://todo-backend-vglo.onrender.com/api/todos/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -62,7 +112,7 @@ function Todos() {
   const handleMarkAsDone = async (id) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`http://localhost:3000/api/todos/${id}`, { completed: true }, {
+      await axios.put(`https://todo-backend-vglo.onrender.com/api/todos/${id}`, { completed: true }, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -87,43 +137,10 @@ function Todos() {
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-800">Your Todos</h2>
-        {user ? (
-          <div className="relative">
-            <button
-              className="flex items-center text-gray-700 hover:text-blue-500"
-              onClick={() => setShowDropdown(!showDropdown)} // Toggle dropdown
-            >
-              <i className="fas fa-user-circle text-3xl"></i>
-              <span className="ml-2">{user.username}</span>
-            </button>
-            {showDropdown && (
-              <div className="absolute right-0 w-40 bg-white shadow-lg mt-2 rounded-md z-10">
-                <div className="px-4 py-2 border-b">
-                  <h4 className="font-bold">{user.username}</h4>
-                  <p className="text-gray-600">{user.email}</p>
-                </div>
-                <button
-                  onClick={handleLogout}
-                  className="block text-left w-full px-4 py-2 text-gray-700 hover:bg-gray-200"
-                >
-                  Logout
-                </button>
-              </div>
-            )}
-          </div>
-        ) : (
-          <p className="text-gray-600">User details not found.</p> // Message if user is not fetched
-        )}
+        <UserProfileDropdown user={user} handleLogout={handleLogout} />
       </div>
 
-      <div className="text-right mb-4">
-        <button
-          onClick={() => setShowCreateTodo(true)}
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-200"
-        >
-          Add New Todo
-        </button>
-      </div>
+      <TodoButton setShowCreateTodo={setShowCreateTodo} />
 
       {showCreateTodo ? (
         <CreateTodos fetchTodos={fetchTodos} onClose={handleCloseCreateTodo} />

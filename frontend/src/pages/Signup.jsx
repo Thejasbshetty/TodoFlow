@@ -20,7 +20,7 @@ function Signup() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:3000/api/auth/signup', formData);
+      await axios.post('https://todo-backend-vglo.onrender.com/api/auth/signup', formData);
       alert('Signup successful!');
       navigate('/');
     } catch (error) {
