@@ -53,24 +53,24 @@ const TodoButton = ({ setShowCreateTodo }) => (
   </div>
 );
 
-function Todos() {
+const Todos = () => {
   const [todos, setTodos] = useState([]);
   const [showCreateTodo, setShowCreateTodo] = useState(false);
   const [user, setUser] = useState(null);
-  const [error, setError] = useState(null); // State for error messages
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   const fetchTodos = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get('https://todo-backend-vglo.onrender.com/api/todos', {
+      const response = await axios.get('https://todo-backend-vglo.onrender.com/api/todos', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      setTodos(res.data);
-    } catch (error) {
-      console.error('Error fetching todos:', error);
+      setTodos(response.data);
+    } catch (err) {
+      console.error('Error fetching todos:', err);
       setError('Failed to fetch todos.');
     }
   };
@@ -78,15 +78,14 @@ function Todos() {
   const fetchUserDetails = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get('https://todo-backend-vglo.onrender.com/api/auth/user', {
+      const response = await axios.get('https://todo-backend-vglo.onrender.com/api/auth/user', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log('User Details:', res.data);
-      setUser(res.data);
-    } catch (error) {
-      console.error('Error fetching user details:', error);
+      setUser(response.data);
+    } catch (err) {
+      console.error('Error fetching user details:', err);
       setUser(null);
     }
   };
@@ -105,43 +104,41 @@ function Todos() {
         },
       });
       fetchTodos();
-    } catch (error) {
-      console.error('Error deleting todo:', error);
+    } catch (err) {
+      console.error('Error deleting todo:', err);
       setError('Failed to delete todo.');
     }
   };
 
-  const handleMarkAsDone = async (id) => {
+  const handleMarkAsDone = async (id, currentStatus) => {
     try {
       const token = localStorage.getItem('token');
       // Optimistically update the UI
-      setTodos((prevTodos) =>
-        prevTodos.map((todo) =>
-          todo._id === id ? { ...todo, completed: true } : todo
-        )
+      const updatedTodos = todos.map((todo) =>
+        todo._id === id ? { ...todo, completed: !currentStatus } : todo
       );
+      setTodos(updatedTodos);
 
+      // Send the update request to the server
       await axios.put(
         `https://todo-backend-vglo.onrender.com/api/todos/${id}`,
-        { completed: true },
+        { completed: !currentStatus },
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }
       );
-
-      // Optionally re-fetch todos to ensure the latest state
-      // fetchTodos();
-    } catch (error) {
-      console.error('Error marking todo as done:', error);
-      setError('Failed to mark todo as done.'); // Set error message on failure
+    } catch (err) {
+      console.error('Error marking todo as done:', err);
+      setError('Failed to mark todo as done.');
+      fetchTodos(); // Re-fetch todos to maintain state consistency
     }
   };
 
   const handleCloseCreateTodo = () => {
     setShowCreateTodo(false);
-    fetchTodos();
+    fetchTodos(); // Fetch todos again to include the newly created one
   };
 
   const handleLogout = () => {
@@ -175,7 +172,7 @@ function Todos() {
               </tr>
             </thead>
             <tbody>
-              {todos.map(todo => (
+              {todos.map((todo) => (
                 <tr key={todo._id} className={`hover:bg-gray-100 ${todo.completed ? 'bg-green-100' : ''}`}>
                   <td className="border py-2 px-4">{todo.title}</td>
                   <td className="border py-2 px-4">{todo.description}</td>
@@ -183,7 +180,7 @@ function Todos() {
                   <td className="border py-2 px-4">{todo.priority}</td>
                   <td className="border py-2 px-4">
                     <button
-                      onClick={() => handleMarkAsDone(todo._id)}
+                      onClick={() => handleMarkAsDone(todo._id, todo.completed)}
                       className={`bg-green-500 hover:bg-green-600 text-white font-bold py-1 px-3 rounded mr-2 ${todo.completed ? 'opacity-50 cursor-not-allowed' : ''}`}
                       disabled={todo.completed}
                     >
@@ -204,6 +201,6 @@ function Todos() {
       )}
     </div>
   );
-}
+};
 
 export default Todos;

@@ -37,8 +37,9 @@ router.post('/', async (req, res) => {
 });
 
 // Mark todo as done
+// Mark todo as done
 router.put('/:id', async (req, res) => {
-  const { done } = req.body; // Get 'done' status from the request
+  const { completed } = req.body; // Get 'completed' status from the request
 
   try {
     // Find the todo by ID
@@ -47,15 +48,8 @@ router.put('/:id', async (req, res) => {
       return res.status(404).json({ message: 'Todo not found' });
     }
 
-    // Update the completed status and set the completion date if marked as done
-    if (done) {
-      todo.completed = true; // Set completed status
-      todo.completionDate = new Date(); // Set completion date
-    } else {
-      todo.completed = false; // Optionally reset completion status
-      todo.completionDate = null; // Optionally reset completion date
-    }
-
+    // Update the completed status
+    todo.completed = completed; // Set completed status based on request
     // Save the updated todo
     await todo.save();
     return res.status(200).json(todo); // Respond with the updated todo
