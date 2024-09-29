@@ -19,7 +19,7 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post('https://todo-backend-vglo.onrender.com/api/auth/login', formData);
+      const res = await axios.post('https://todos-backend-vm9s.onrender.com/api/auth/login', formData);
       alert('Login successful!');
       localStorage.setItem('token', res.data.token);
       navigate('/todos');

@@ -11,7 +11,7 @@ function CreateTodos({ fetchTodos, onClose }) {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      await axios.post('https://todo-backend-vglo.onrender.com/api/todos', { title, description, dueDate, priority }, {
+      await axios.post('https://todos-backend-vm9s.onrender.com/api/todos', { title, description, dueDate, priority }, {
         headers: {
           Authorization: `Bearer ${token}`
         }
